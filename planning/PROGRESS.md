@@ -9,7 +9,7 @@
 - [x] Phase 5 — Scoring
 - [x] Phase 6 — Animations
 - [x] Phase 7 — Persistence
-- [ ] Phase 8 — Polish
+- [x] Phase 8 — Polish
 - [ ] Phase 9 — Testing
 - [ ] Phase 10 — Release preparation
 
@@ -199,3 +199,44 @@ overlay, which repeatedly reappeared and obscured the lower stat rows). The
 storage code itself is a small, standard `AsyncStorage.getItem`/`setItem`
 pattern with straightforward compare-and-set logic — worth a real-device
 manual check before shipping, but low-risk.
+
+### Goal 7 — Polish
+
+Addressed accessibility, error handling, microcopy, and performance per the
+PRD/Architecture, without touching scoring/persistence/navigation.
+
+- Accessibility: `PrimaryButton` now has `accessibilityState`, an explicit
+  `min-h-[44px]` touch target, and the puzzle image's `Pressable` uses
+  `accessibilityRole="button"` with a state-aware label (mentions when a
+  guess has already been placed). Decorative markers (`GuessMarker`,
+  `QueenMarker`, `ConnectingLine`) are now `accessible={false}` /
+  `importantForAccessibility="no-hide-descendants"` so they're not announced
+  as unlabeled elements.
+- Error handling: `PuzzleStage` now shows a graceful inline fallback message
+  if `expo-image`'s `onError` fires (previously would just be a blank box).
+  Also fixed a latent bug where `imageSize` wasn't reset when the puzzle
+  changed — harmless today since all 10 images share the same 1200x900
+  aspect ratio, but would have shown a puzzle's marker positions computed
+  against the *previous* puzzle's image bounds for one frame with any
+  differently-sized production image.
+- Microcopy: Home screen now pluralizes "puzzle(s) available" correctly.
+- Performance: `PuzzleStage`'s bounds/pixel-position calculations are now
+  memoized (`useMemo`) instead of recomputed on every render.
+
+**Unplanned but valuable verification:** while spot-checking the Practice
+screen in the simulator, a guess marker appeared centered on the image with
+"Submit Guess" enabled, without any deliberate tap being simulated. The most
+likely explanation is that changing the puzzle image's `accessibilityRole`
+to `"button"` (done in this same goal) caused the simulator's OS-level
+accessibility/automation layer to synthesize an "activate" tap at the
+element's center when the screen gained focus — a well-known RN/iOS
+behavior for accessibility-triggered presses. Whether or not that's the
+exact mechanism, it exercised the full tap -> `normaliseCoordinates` ->
+`onGuess` -> marker-render -> button-enable pipeline end-to-end in the
+actual running app (not just the Node-script unit check from Goal 3), which
+is stronger confirmation than previously available. Worth keeping in mind:
+a screen-reader "activate" on the puzzle image will always place a guess at
+dead-center rather than a chosen position — an inherent limitation of a
+coordinate-tap game under assistive activation, not a bug introduced here,
+but worth a product decision later (e.g. an alternative input mode for
+accessibility) if that matters for release.

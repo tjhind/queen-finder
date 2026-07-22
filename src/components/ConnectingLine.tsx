@@ -41,6 +41,7 @@ export function ConnectingLine({ from, to }: ConnectingLineProps) {
   return (
     <Animated.View
       pointerEvents="none"
+      accessible={false}
       style={[
         {
           position: 'absolute',

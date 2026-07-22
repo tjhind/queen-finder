@@ -49,7 +49,7 @@ export function HomeScreen() {
         </View>
 
         <Text className="mt-md text-center text-sm text-text-secondary">
-          {puzzleCount} puzzles available
+          {puzzleCount} {puzzleCount === 1 ? 'puzzle' : 'puzzles'} available
         </Text>
         {bestScore !== null && bestScore > 0 ? (
           <Text className="mt-xs text-center text-sm text-text-secondary">

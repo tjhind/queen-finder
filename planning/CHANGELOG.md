@@ -121,3 +121,21 @@
 ### Fixed
 
 - N/A.
+
+## Goal 7 — Polish
+
+### Added
+
+- Graceful fallback UI in `PuzzleStage` for puzzle image load failures.
+
+### Changed
+
+- Accessibility: better labels/state on `PrimaryButton` and the puzzle
+  image's `Pressable`; decorative markers hidden from assistive tech.
+- Home screen pluralizes "puzzle(s) available" correctly.
+- `PuzzleStage`'s bounds/pixel calculations are now memoized.
+
+### Fixed
+
+- `PuzzleStage` didn't reset `imageSize` when the puzzle changed (latent
+  bug, no visible effect with the current same-sized dataset).

@@ -41,6 +41,8 @@ export function QueenMarker({ x, y }: QueenMarkerProps) {
     <Animated.View
       entering={ZoomIn.duration(250)}
       pointerEvents="none"
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
       style={{
         position: 'absolute',
         left: x - HALO_SIZE / 2,

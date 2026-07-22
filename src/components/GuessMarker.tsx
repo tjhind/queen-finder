@@ -14,6 +14,8 @@ export function GuessMarker({ x, y }: GuessMarkerProps) {
     <Animated.View
       entering={ZoomIn.duration(180)}
       pointerEvents="none"
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
       style={{
         position: 'absolute',
         left: x - SIZE / 2,

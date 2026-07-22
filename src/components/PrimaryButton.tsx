@@ -38,12 +38,13 @@ export function PrimaryButton({ label, onPress, disabled }: PrimaryButtonProps) 
     <AnimatedPressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={animatedStyle}
-      className={`items-center justify-center rounded-lg bg-primary px-8 py-4 shadow-sm ${
+      className={`min-h-[44px] items-center justify-center rounded-lg bg-primary px-8 py-4 shadow-sm ${
         disabled ? 'opacity-50' : ''
       }`}
     >
