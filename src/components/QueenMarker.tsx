@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -62,7 +63,7 @@ export function QueenMarker({ x, y }: QueenMarkerProps) {
           haloStyle,
         ]}
       />
-      <Animated.View
+      <View
         style={{
           width: SIZE,
           height: SIZE,

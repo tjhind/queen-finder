@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PracticeHeader } from '@/src/components/PracticeHeader';
 import { PrimaryButton } from '@/src/components/PrimaryButton';
 import { PuzzleStage } from '@/src/components/PuzzleStage';
+import { ResultLabel } from '@/src/components/ResultLabel';
 import { usePuzzleSession } from '@/src/hooks/usePuzzleSession';
 import { calculateDistance } from '@/src/utils/calculateDistance';
 import { calculateScore, type ScoreResult } from '@/src/utils/calculateScore';
@@ -84,10 +85,7 @@ export function PracticeScreen() {
           onGuess={setGuess}
         />
         {result ? (
-          <Text className="mt-sm text-center text-lg font-semibold text-text-primary">
-            {result.label}
-            {result.points > 0 ? ` +${result.points}` : ''}
-          </Text>
+          <ResultLabel result={result} />
         ) : currentPuzzle.title ? (
           <Text className="mt-sm text-center text-sm text-text-secondary">
             {currentPuzzle.title}

@@ -7,7 +7,7 @@
 - [x] Phase 3 — Puzzle engine
 - [x] Phase 4 — Image interaction
 - [x] Phase 5 — Scoring
-- [ ] Phase 6 — Animations
+- [x] Phase 6 — Animations
 - [ ] Phase 7 — Persistence
 - [ ] Phase 8 — Polish
 - [ ] Phase 9 — Testing
@@ -141,3 +141,33 @@ disabled "Submit Guess" button pre-guess.
 
 Best-score/statistics persistence across launches remains out of scope
 (Phase 7) — results are session-only for now.
+
+### Goal 5 — Animations
+
+Rounded out the animation set from `docs/ARCHITECTURE.md` (marker fade/scale
+and button press animation already existed from Goals 1 & 3).
+
+- Added `AnimatedScore` (`src/components`) — counts up/down smoothly via a
+  Reanimated shared value + `useAnimatedReaction`/`runOnJS`, used in
+  `PracticeHeader` for the live session score.
+- Added `ResultLabel` — a subtle `FadeInDown` entrance for the per-puzzle
+  result text ("Perfect +100" etc).
+- `PuzzleStage` now fades in the puzzle image (keyed by `puzzle.id`) when
+  advancing between puzzles, instead of an abrupt swap.
+- **Bug found and fixed:** `ConnectingLine` set a static `opacity: 0.6` in
+  its style *and* used `entering={FadeIn}` on the same view — Reanimated
+  warned "Property 'opacity' ... may be overwritten by a layout animation"
+  because both mechanisms fight over the same property. Fixed by animating
+  opacity via its own shared value (`withTiming` to `0.6`) instead of the
+  `entering` shorthand, matching the pattern `QueenMarker`'s halo already
+  used. Also downgraded `QueenMarker`'s static inner circle from
+  `Animated.View` to a plain `View` (it never animated).
+
+Verified: `tsc`, `expo-doctor` (20/20), iOS/Android exports, and — after an
+initial false alarm caused by stale state in a repeatedly-reused simulator/
+dev-server across many test iterations in one long session — a genuinely
+fresh Expo Go install + first launch, confirming `Score: 0` / `Puzzle 1 of
+10` render correctly at session start with no console warnings in the
+Metro log. (Lesson for future verification passes: prefer a fresh
+simulator + fresh dev-server port per check rather than reusing one across
+many edits, to avoid chasing phantom state.)

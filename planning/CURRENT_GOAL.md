@@ -1,56 +1,57 @@
 # Current Goal
 
-## Goal 5
+## Goal 6
 
-### Animations
+### Persistence
 
 ---
 
 # Objective
 
-Round out the animation set described in `docs/ARCHITECTURE.md`'s
-Animations section ("marker fade, marker scale, score animation, button
-press animation") and `docs/PRD.md`'s Gameplay section ("animate queen
-highlight"). Marker fade/scale (via `GuessMarker`/`QueenMarker`'s entering
-animations) and button press animation already exist from earlier goals.
-This goal focuses on the remaining gap — score animation — plus small,
-subtle polish around puzzle transitions and the result label.
+Persist the player's best score locally using AsyncStorage, per
+`docs/PRD.md`'s Scoring section ("Persist best score locally") and
+`docs/ARCHITECTURE.md` (AsyncStorage is an approved dependency, business
+logic must not live in UI components).
 
-This goal is animation polish only. Do not change scoring logic, puzzle
-data, navigation structure, or add new screens.
+This goal is limited to best-score persistence. Do not implement:
+
+- Full puzzle-by-puzzle history/analytics.
+- Any backend or account system (explicitly out of scope for the whole
+  product, per the PRD).
 
 ---
 
 # Tasks
 
-## Score Animation
+## Storage Service
 
-Add a reusable animated score display (e.g. `src/components/AnimatedScore.tsx`)
-that smoothly counts up/down when its numeric value changes, using
-Reanimated (a shared value driven by `withTiming`, reflected into text via
-`useAnimatedReaction` + `runOnJS`, or an equivalent Reanimated-native
-approach). Use it in `PracticeHeader` in place of the current plain `Text`
-score display. Keep the animation subtle and fast (a few hundred ms).
+Add a small service (e.g. `src/services/bestScoreService.ts`) wrapping
+`@react-native-async-storage/async-storage`, exposing something like:
 
-## Result Label Entrance
+- `getBestScore(): Promise<number>`
+- `saveBestScoreIfHigher(score: number): Promise<number>` — persists and
+  returns the new best only if `score` beats the stored value, otherwise
+  returns the existing best unchanged.
 
-Give the per-puzzle result label (e.g. "Perfect +100") a subtle entrance
-animation when it appears after submission, consistent in feel with the
-marker animations already in place.
+Handle storage failures gracefully (never crash — fall back to `0` /
+leave the best score unchanged, per `docs/ARCHITECTURE.md`'s Error
+Handling section).
 
-## Puzzle Transition
+## Results Screen
 
-Add a subtle fade when the puzzle image changes between puzzles in
-`PuzzleStage`/`PracticeScreen`, so advancing doesn't feel like an abrupt cut.
-Keep it quick and unobtrusive — this is a polish detail, not a slideshow
-effect.
+Update `src/screens/ResultsScreen.tsx` to:
 
-## Performance Check
+- On mount, read the stored best score and update it if the current
+  session's score is higher.
+- Display "Best Score" alongside the existing Final Score, Accuracy, and
+  Correct Answers stats.
 
-Per `docs/ARCHITECTURE.md`'s Performance section, confirm animations stay
-smooth: avoid layout thrashing, don't introduce unnecessary re-renders, and
-resolve any Reanimated warnings (e.g. entering/layout-animation conflicts)
-encountered along the way rather than leaving them as noise.
+## Home Screen (optional, only if it fits cleanly)
+
+If it doesn't complicate the component, consider surfacing the best score
+on the Home screen too (nice-to-have, not required by the PRD's Home
+Screen spec, which currently lists only title / illustration / button /
+puzzle count).
 
 ---
 
@@ -58,17 +59,17 @@ encountered along the way rather than leaving them as noise.
 
 This goal is complete only when:
 
-- The score displayed during Practice animates smoothly when it changes,
-  instead of jumping instantly.
-- The result label has a subtle, consistent entrance animation.
-- Advancing between puzzles has a subtle transition rather than an abrupt
-  swap.
-- No new Reanimated warnings are introduced, and any encountered during
-  this goal's work are resolved.
+- The best score is persisted via AsyncStorage and correctly survives an
+  app reload (verified by checking storage behavior, not just in-memory
+  state).
+- A new high score updates the stored value; a lower score does not
+  overwrite a higher stored best.
+- Storage failures do not crash the app.
+- The Results screen displays the best score correctly.
 - The app builds successfully, TypeScript reports no errors, and the app
   still launches without runtime errors.
-- Existing scoring, image interaction, puzzle engine, and navigation
-  functionality remain intact.
+- Existing scoring, image interaction, puzzle engine, animations, and
+  navigation remain intact.
 
 ---
 

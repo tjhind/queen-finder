@@ -87,3 +87,21 @@
 ### Fixed
 
 - N/A.
+
+## Goal 5 — Animations
+
+### Added
+
+- `AnimatedScore` — smooth count-up/down for the live session score.
+- `ResultLabel` — entrance animation for the per-puzzle result text.
+- Fade-in transition for the puzzle image when advancing between puzzles.
+
+### Changed
+
+- N/A.
+
+### Fixed
+
+- `ConnectingLine` had a static `opacity` style conflicting with its
+  `entering` animation (Reanimated warning). Now animates opacity via its
+  own shared value.

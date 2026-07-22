@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { GestureResponderEvent, LayoutChangeEvent } from 'react-native';
 import { Pressable, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { ConnectingLine } from '@/src/components/ConnectingLine';
 import { GuessMarker } from '@/src/components/GuessMarker';
@@ -71,17 +72,19 @@ export function PuzzleStage({
         accessibilityLabel={puzzle.title ?? 'Hive puzzle image'}
         className="flex-1"
       >
-        <PuzzleImage
-          source={puzzle.image}
-          contentFit="contain"
-          className="h-full w-full"
-          onLoad={(event) =>
-            setImageSize({
-              width: event.source.width,
-              height: event.source.height,
-            })
-          }
-        />
+        <Animated.View key={puzzle.id} entering={FadeIn.duration(200)} style={{ flex: 1 }}>
+          <PuzzleImage
+            source={puzzle.image}
+            contentFit="contain"
+            className="h-full w-full"
+            onLoad={(event) =>
+              setImageSize({
+                width: event.source.width,
+                height: event.source.height,
+              })
+            }
+          />
+        </Animated.View>
       </Pressable>
 
       {revealed && guessPixel && queenPixel ? (
