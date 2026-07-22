@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/src/components/PrimaryButton';
 import { ResultStat } from '@/src/components/ResultStat';
+import { useBestScore } from '@/src/hooks/useBestScore';
 
 export function ResultsScreen() {
   const router = useRouter();
@@ -17,6 +18,8 @@ export function ResultsScreen() {
   const correct = Number(params.correct ?? 0);
   const total = Number(params.total ?? 0);
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  const bestScore = useBestScore(score);
 
   const handlePlayAgain = () => {
     router.replace('/practice');
@@ -37,6 +40,10 @@ export function ResultsScreen() {
           <ResultStat label="Final Score" value={String(score)} />
           <ResultStat label="Accuracy" value={`${accuracy}%`} />
           <ResultStat label="Correct Answers" value={`${correct} / ${total}`} />
+          <ResultStat
+            label="Best Score"
+            value={String(bestScore ?? score)}
+          />
         </View>
 
         <View className="mt-2xl w-full items-center gap-md">

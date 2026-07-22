@@ -8,7 +8,7 @@
 - [x] Phase 4 — Image interaction
 - [x] Phase 5 — Scoring
 - [x] Phase 6 — Animations
-- [ ] Phase 7 — Persistence
+- [x] Phase 7 — Persistence
 - [ ] Phase 8 — Polish
 - [ ] Phase 9 — Testing
 - [ ] Phase 10 — Release preparation
@@ -171,3 +171,31 @@ fresh Expo Go install + first launch, confirming `Score: 0` / `Puzzle 1 of
 Metro log. (Lesson for future verification passes: prefer a fresh
 simulator + fresh dev-server port per check rather than reusing one across
 many edits, to avoid chasing phantom state.)
+
+### Goal 6 — Persistence
+
+Implemented best-score persistence via AsyncStorage per the PRD.
+
+- Added `src/services/bestScoreService.ts` (`getBestScore()`,
+  `saveBestScoreIfHigher()`) wrapping
+  `@react-native-async-storage/async-storage`, with storage failures caught
+  and falling back to `0` / the existing value rather than crashing.
+- Added `useBestScore(score)` hook (`src/hooks`) that saves-if-higher on
+  mount and returns the resulting best.
+- Results screen now shows a "Best Score" stat alongside Final
+  Score/Accuracy/Correct Answers.
+- Home screen now optionally shows "Best score: N" (read-only, via
+  `getBestScore()`) once a best score exists, per the PRD Home Screen spirit
+  without conflicting with its listed fields.
+
+**Verification note:** confirmed via `tsc`, `expo-doctor` (20/20), iOS/
+Android exports, and a simulator check that the Results screen renders real
+`score`/`accuracy` params correctly after these changes (no regression).
+Simulator navigation in this environment proved unreliable for a full
+write-then-read-elsewhere round trip in one sitting (deep-link navigation
+occasionally no-ops on repeat calls to an already-running Expo Go instance,
+and there's still no tap-injection available to dismiss Expo Go's dev-menu
+overlay, which repeatedly reappeared and obscured the lower stat rows). The
+storage code itself is a small, standard `AsyncStorage.getItem`/`setItem`
+pattern with straightforward compare-and-set logic — worth a real-device
+manual check before shipping, but low-risk.

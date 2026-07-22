@@ -105,3 +105,19 @@
 - `ConnectingLine` had a static `opacity` style conflicting with its
   `entering` animation (Reanimated warning). Now animates opacity via its
   own shared value.
+
+## Goal 6 — Persistence
+
+### Added
+
+- `src/services/bestScoreService.ts` and `useBestScore` hook for
+  AsyncStorage-backed best-score persistence.
+
+### Changed
+
+- Results screen now shows a "Best Score" stat.
+- Home screen now shows "Best score: N" once a best score exists.
+
+### Fixed
+
+- N/A.

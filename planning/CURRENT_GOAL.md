@@ -1,57 +1,67 @@
 # Current Goal
 
-## Goal 6
+## Goal 7
 
-### Persistence
+### Polish
 
 ---
 
 # Objective
 
-Persist the player's best score locally using AsyncStorage, per
-`docs/PRD.md`'s Scoring section ("Persist best score locally") and
-`docs/ARCHITECTURE.md` (AsyncStorage is an approved dependency, business
-logic must not live in UI components).
+A general polish pass addressing `docs/PRD.md`'s Accessibility section and
+`docs/ARCHITECTURE.md`'s Error Handling and Performance sections, which
+haven't been directly addressed by any single goal so far.
 
-This goal is limited to best-score persistence. Do not implement:
-
-- Full puzzle-by-puzzle history/analytics.
-- Any backend or account system (explicitly out of scope for the whole
-  product, per the PRD).
+This goal is polish only. Do not change scoring, persistence, navigation
+structure, or the puzzle dataset.
 
 ---
 
 # Tasks
 
-## Storage Service
+## Accessibility
 
-Add a small service (e.g. `src/services/bestScoreService.ts`) wrapping
-`@react-native-async-storage/async-storage`, exposing something like:
+Audit all interactive elements (buttons, the puzzle tap area) against the
+PRD's "large touch targets, readable typography, good colour contrast"
+requirement:
 
-- `getBestScore(): Promise<number>`
-- `saveBestScoreIfHigher(score: number): Promise<number>` — persists and
-  returns the new best only if `score` beats the stored value, otherwise
-  returns the existing best unchanged.
+- Confirm touch targets meet a sensible minimum (~44×44pt).
+- Confirm `accessibilityRole`/`accessibilityLabel` are present and accurate
+  on all interactive elements (some already exist from earlier goals —
+  check for gaps, e.g. the `PuzzleStage` Pressable's label when a guess has
+  already been placed, or when revealed).
+- Spot-check colour contrast against `src/theme/colors.ts` for text on
+  backgrounds/buttons.
 
-Handle storage failures gracefully (never crash — fall back to `0` /
-leave the best score unchanged, per `docs/ARCHITECTURE.md`'s Error
-Handling section).
+## Error Handling
 
-## Results Screen
+Per `docs/ARCHITECTURE.md`, the app must never crash due to missing
+metadata, invalid coordinates, or missing image assets:
 
-Update `src/screens/ResultsScreen.tsx` to:
+- Add a graceful fallback in `PuzzleStage`/`PuzzleImage` for puzzle image
+  load failures (`expo-image` exposes an `onError` callback) — show a
+  simple inline message instead of a blank/broken area.
+- Add a defensive guard in `usePuzzleSession`/`PracticeScreen` so an
+  empty or malformed puzzle dataset can't produce a crash (it should
+  currently be impossible given `src/data/queens.ts`, but the guard should
+  exist per the architecture's error-handling standard).
 
-- On mount, read the stored best score and update it if the current
-  session's score is higher.
-- Display "Best Score" alongside the existing Final Score, Accuracy, and
-  Correct Answers stats.
+## Microcopy Polish
 
-## Home Screen (optional, only if it fits cleanly)
+- Fix pluralization: "1 puzzle available" vs "10 puzzles available" on the
+  Home screen (currently always plural).
+- Do a quick pass for consistent wording/capitalization across Home,
+  Practice, and Results screens.
 
-If it doesn't complicate the component, consider surfacing the best score
-on the Home screen too (nice-to-have, not required by the PRD's Home
-Screen spec, which currently lists only title / illustration / button /
-puzzle count).
+## Performance
+
+Per `docs/ARCHITECTURE.md`'s Performance section:
+
+- Memoize `PuzzleStage`'s bounds/pixel-position calculations (`useMemo`)
+  so they aren't recomputed on every render for no reason.
+- Spot-check for any obviously unnecessary re-renders introduced by
+  earlier goals and address them if trivial to fix; don't go on a broad
+  refactor hunt.
 
 ---
 
@@ -59,17 +69,16 @@ puzzle count).
 
 This goal is complete only when:
 
-- The best score is persisted via AsyncStorage and correctly survives an
-  app reload (verified by checking storage behavior, not just in-memory
-  state).
-- A new high score updates the stored value; a lower score does not
-  overwrite a higher stored best.
-- Storage failures do not crash the app.
-- The Results screen displays the best score correctly.
+- Interactive elements have appropriate touch target sizes and accurate
+  accessibility labels/roles.
+- A failed puzzle image load shows a graceful fallback instead of a blank
+  or broken UI, and does not crash the app.
+- Home screen pluralizes "puzzle(s) available" correctly.
+- `PuzzleStage`'s per-render calculations are memoized where sensible.
 - The app builds successfully, TypeScript reports no errors, and the app
   still launches without runtime errors.
-- Existing scoring, image interaction, puzzle engine, animations, and
-  navigation remain intact.
+- Existing scoring, persistence, image interaction, puzzle engine,
+  animations, and navigation all remain intact.
 
 ---
 
