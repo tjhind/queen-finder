@@ -10,7 +10,7 @@
 - [x] Phase 6 — Animations
 - [x] Phase 7 — Persistence
 - [x] Phase 8 — Polish
-- [ ] Phase 9 — Testing
+- [x] Phase 9 — Testing
 - [ ] Phase 10 — Release preparation
 
 ## Completed Goals
@@ -240,3 +240,35 @@ dead-center rather than a chosen position — an inherent limitation of a
 coordinate-tap game under assistive activation, not a bug introduced here,
 but worth a product decision later (e.g. an alternative input mode for
 accessibility) if that matters for release.
+
+### Goal 8 — Testing
+
+Set up `jest-expo` and added unit tests for the pure utility functions per
+`docs/ARCHITECTURE.md`'s Testing section.
+
+- Added `jest`, `jest-expo`, `@react-native/jest-preset`, and `@types/jest`
+  as dev dependencies; `npm test` runs the suite (`"jest": { "preset":
+  "jest-expo" }` in `package.json`).
+- Added `types: ["jest"]` to `tsconfig.json` so test globals type-check.
+- 30 tests across 6 suites, all passing:
+  - `calculateDistance` — known values, symmetry.
+  - `calculateScore` — every threshold boundary (Perfect/Excellent/Good/
+    Close/Miss) plus the `radius <= 0` edge case.
+  - `imageBounds` — matching-aspect-ratio (no letterbox), letterboxed
+    cases in both directions, taps in the letterbox padding correctly
+    returning `null`, edge-inclusive bounds, and pixel↔normalized
+    round-tripping. This turns the throwaway Node script from Goal 3's
+    manual verification into a permanent, CI-visible test.
+  - `randomisePuzzleOrder` — set/length invariants and non-mutation
+    (doesn't assert exact order, since that's random by design).
+  - `puzzleService` — puzzle count, per-puzzle metadata validity, unique
+    ids, and the 3 easy / 4 medium / 3 hard split from the PRD.
+  - `bestScoreService` — using AsyncStorage's official Jest mock
+    (`@react-native-async-storage/async-storage/jest/async-storage-mock`):
+    defaults to 0, persists a new best, doesn't overwrite with a lower
+    score, updates on a strictly higher score.
+
+Verified: `npm test` (30/30 passing), `tsc`, `expo-doctor` (20/20), and an
+`expo export --platform ios` to confirm the test files don't end up in the
+app bundle (nothing imports them from the entry point, so Metro naturally
+excludes them).

@@ -139,3 +139,20 @@
 
 - `PuzzleStage` didn't reset `imageSize` when the puzzle changed (latent
   bug, no visible effect with the current same-sized dataset).
+
+## Goal 8 — Testing
+
+### Added
+
+- `jest-expo` test runner setup (`npm test`).
+- 30 unit tests across 6 suites covering `calculateDistance`,
+  `calculateScore`, `imageBounds`, `randomisePuzzleOrder`,
+  `puzzleService`, and `bestScoreService`.
+
+### Changed
+
+- N/A.
+
+### Fixed
+
+- N/A.

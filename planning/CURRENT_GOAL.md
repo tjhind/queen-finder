@@ -1,58 +1,63 @@
 # Current Goal
 
-## Goal 8
+## Goal 9
 
-### Testing
+### Release Preparation
 
 ---
 
 # Objective
 
-Set up a test runner and add unit tests for the pure utility functions, per
-`docs/ARCHITECTURE.md`'s Testing section: "Utility functions should be
-independently testable. Core gameplay should be deterministic."
+Final release-readiness pass. This is the last roadmap phase
+(`planning/ROADMAP.md` Phase 10). Verify the product actually satisfies
+`docs/PRD.md`'s Acceptance Criteria, tidy up release-facing configuration,
+and do a final full verification sweep.
 
-This goal is testing infrastructure and unit tests only. Do not change
-application behavior — if a test reveals a real bug, fix the minimum needed
-and note it, but this goal is not a general refactor pass.
+Do not add new gameplay features. This goal is verification and
+housekeeping only.
 
 ---
 
 # Tasks
 
-## Test Runner Setup
+## App Configuration
 
-Add `jest-expo` (the Expo-recommended Jest preset for React Native/Expo
-projects) as a dev dependency, with a `test` script in `package.json`. Use
-`npx expo install --dev jest-expo jest` (or the equivalent) so versions stay
-aligned with the installed Expo SDK.
+- Review `app.json` for release readiness: confirm `name`, `slug`,
+  `version`, and icon/splash asset paths are all sensible and non-placeholder.
+- Set `ios.bundleIdentifier` and `android.package` to sensible reverse-DNS
+  values (not currently set) — standard release-prep housekeeping, even
+  though this project isn't going through an actual store submission here.
 
-## Utility Unit Tests
+## Acceptance Criteria Review
 
-Add tests (e.g. under `src/utils/__tests__/` or colocated `*.test.ts`
-files) covering:
+Walk through `docs/PRD.md`'s Acceptance Criteria section explicitly and
+confirm each item, fixing anything that doesn't hold:
 
-- `calculateDistance` — known distance values (e.g. a 3-4-5 triangle).
-- `calculateScore` — boundary behavior at each threshold (Perfect/
-  Excellent/Good/Close/Miss), including the `radius <= 0` edge case.
-- `imageBounds` (`computeContainedImageBounds`, `normaliseCoordinates`,
-  `getPixelPosition`) — matching aspect ratio (no letterboxing), a
-  letterboxed case, a tap in the letterbox padding returning `null`, and
-  pixel↔normalized round-tripping. (This mirrors the standalone Node
-  script used for manual verification in Goal 3 — turn it into real,
-  permanent, CI-visible tests instead of a throwaway script.)
-- `randomisePuzzleOrder` — same elements/length as input, does not mutate
-  the input array, returns a new array reference.
+- The game is fully playable end-to-end (Home → Practice → guess → reveal
+  → score → next puzzle → Results → Play Again / Return Home).
+- All gameplay works correctly.
+- Ten puzzles are included with valid metadata.
+- Images are stored locally; everything works offline (no network calls
+  anywhere in the app).
+- New puzzles can be added by only touching `assets/images/` and
+  `src/data/queens.ts` — no UI/logic changes required.
+- The application is suitable for beta testing (no leftover debug code,
+  no stray `console.log`s, no crashes across the full flow).
 
-## Service Tests (if straightforward)
+## Documentation
 
-If it doesn't require excessive mocking, add tests for `puzzleService`
-(`getPuzzleCount()` matches the dataset length, `getPuzzles()` returns
-puzzles with valid required fields) and `bestScoreService` (mocking
-AsyncStorage — `@react-native-async-storage/async-storage` ships a Jest
-mock for this purpose). If AsyncStorage mocking turns out to be more
-trouble than it's worth for this goal, skip it and note why — utility
-function coverage is the priority.
+Add a minimal `README.md` at the repo root covering: what the project is,
+how to install dependencies, how to run it (`npm start`), and how to run
+tests (`npm test`). Keep it short — this is a dev-facing quick start, not
+product documentation.
+
+## Final Verification Sweep
+
+- `npx tsc --noEmit`
+- `npm test`
+- `npx expo-doctor`
+- `npx expo export --platform ios` and `--platform android`
+- A final simulator smoke test of the full Home → Practice → Results loop.
 
 ---
 
@@ -60,31 +65,22 @@ function coverage is the priority.
 
 This goal is complete only when:
 
-- `npm test` (or equivalent) runs the test suite successfully with no
-  failures.
-- The pure utility functions listed above have meaningful unit test
-  coverage, including edge cases (letterbox padding, threshold boundaries,
-  `radius <= 0`).
-- Tests are deterministic (no flaky reliance on `Math.random()` without
-  accounting for it, e.g. `randomisePuzzleOrder`'s tests check set/length
-  invariants rather than exact output).
-- The app still builds successfully, TypeScript reports no errors, and the
-  app still launches without runtime errors.
-- Existing functionality from all previous goals remains intact.
+- Every item in the PRD's Acceptance Criteria section is verifiably true.
+- `app.json` has sensible, non-placeholder release configuration including
+  bundle identifiers.
+- A root `README.md` exists with basic setup/run/test instructions.
+- The full verification sweep (typecheck, tests, doctor, both platform
+  exports) passes cleanly.
+- The repository is left in a clean, buildable, working state.
 
 ---
 
 # Completion
 
-When every success criterion has been satisfied:
+When every success criterion has been satisfied, this is the final
+roadmap phase (`planning/ROADMAP.md` Phase 10 of 10). Per `planning/GOAL.md`'s
+Automation section, once every roadmap item is complete, automation should
+stop — do not invent further goals beyond the roadmap.
 
-The automation instructions inside GOAL.md should be followed.
-
-Do not manually determine the next step here.
-
-GOAL.md is responsible for:
-
-- updating progress
-- version control
-- rewriting CURRENT_GOAL.md
-- continuing automation
+The automation instructions inside GOAL.md should be followed for final
+progress/changelog updates and version control.
