@@ -1,104 +1,72 @@
 # Current Goal
 
-## Goal 2
+## Goal 3
 
-### Puzzle Engine
+### Image Interaction
 
 ---
 
 # Objective
 
-Implement the puzzle data model, the local puzzle dataset, and the loading/
-sequencing engine described in the Architecture and PRD documents.
+Implement tap-to-guess interaction on the puzzle image, with correct
+coordinate mapping and the guess/reveal visuals described in the PRD
+Gameplay section.
 
-This goal is limited to the puzzle engine (data + sequencing). Do not implement:
+This goal is limited to image interaction. Do not implement:
 
-- Tap-to-guess image interaction or coordinate mapping (Phase 4).
-- Scoring, accuracy, or best-score persistence (Phase 5, Phase 7).
-- Reveal/marker animations (Phase 6).
-
-The Practice screen should be wired to the real puzzle dataset and sequencing
-logic, but guessing and scoring remain out of scope for this goal.
+- Numeric scoring, accuracy, or points bands (Phase 5). It is fine to
+  determine hit/miss using the puzzle's `queen.radius` for visual purposes
+  (e.g. which marker style to show), but do not award or display points.
+- Best-score or statistics persistence (Phase 7).
 
 ---
 
 # Tasks
 
-## Puzzle Type
+## Coordinate Mapping
 
-Create `src/types/puzzle.ts` exporting the `Puzzle` interface exactly as defined
-in `docs/PRD.md`:
+Following `docs/ARCHITECTURE.md`'s "Image Interaction" section, add a pure,
+reusable utility (e.g. `src/utils/getRelativeCoordinates.ts`) that converts a
+tap position within the rendered image container into normalized (0–1)
+image coordinates. It must correctly account for:
 
-```ts
-export interface Puzzle {
-  id: string;
-  image: ImageSourcePropType;
-  queen: {
-    x: number;
-    y: number;
-    radius: number;
-  };
-  title?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
-}
-```
+- `contentFit="contain"` letterboxing (the rendered image may not fill the
+  full width/height of its container).
+- The puzzle image's natural aspect ratio vs. the container's aspect ratio.
+- Different screen sizes.
 
-Coordinates are normalized (0–1). `radius` defines the acceptable hit area
-(also normalized).
+## Distance Utility
 
----
+Add `src/utils/calculateDistance.ts` — a pure function computing the
+normalized-space distance between a guess point and the queen's `{x, y}`,
+for comparison against `queen.radius`.
 
-## Puzzle Metadata
+## Guess Marker
 
-Create `src/data/queens.ts` exporting all 10 puzzles from `assets/images/`
-(`puzzle-01.png` … `puzzle-10.png`, 3 easy / 4 medium / 3 hard, per
-`docs/PRD.md`).
+Add a reusable `GuessMarker` component (`src/components`) rendering a blue
+marker at a given normalized position, with a subtle Reanimated fade/scale-in
+animation when placed.
 
-Each entry must reference its image via a static `require(...)` and include
-valid `queen` coordinates and a sensible hit `radius`.
+## Queen Reveal
 
-Do not modify application logic to special-case individual puzzles — the UI
-must render whatever this file contains.
+Add a `QueenMarker` component and a simple connecting-line element (a
+rotated `View`, no new SVG dependency required) that:
 
----
+- Reveals the queen's true position with a subtle highlight animation.
+- Draws a subtle line connecting the guess marker to the queen marker.
 
-## Business Logic
+## Practice Screen Wiring
 
-Following `docs/ARCHITECTURE.md`, keep game logic out of UI components. Add
-reusable utilities, for example:
+Update `src/screens/PracticeScreen.tsx` so that:
 
-- `src/utils/randomisePuzzleOrder.ts` — returns a shuffled copy of the puzzle
-  list (pure function, unit-testable, does not mutate its input).
-- A small puzzle-loading service or hook (e.g. `src/services/puzzleService.ts`
-  and/or `src/hooks/usePuzzleSession.ts`) that exposes the full puzzle list,
-  the puzzle count, and a randomised session sequence with a "current index"
-  concept.
-
----
-
-## Home Screen
-
-Update `src/screens/HomeScreen.tsx` to display the number of available
-puzzles (per the PRD Home Screen spec), sourced from the puzzle dataset —
-never hard-coded.
-
----
-
-## Practice Screen
-
-Update `src/screens/PracticeScreen.tsx` to:
-
-- Load a randomised puzzle sequence on mount.
-- Display the current puzzle's image (using `expo-image`), sized for mobile.
-- Show puzzle progress in the top area (e.g. "Puzzle 2 of 10"), per the PRD
-  Practice Screen layout.
-- Provide a way to advance to the next puzzle (a simple "Next Puzzle" action
-  is sufficient at this stage — full submit/reveal flow is Phase 4).
-- Navigate to the Results placeholder route once every puzzle in the session
-  has been shown.
-
-A static score placeholder (e.g. "0") may be shown in the top area to match
-the PRD layout, since real scoring is not implemented until Phase 5.
+- Tapping the puzzle image places (or repositions) the blue guess marker.
+  Repositioning is only allowed before submission.
+- The primary button reads "Submit Guess" while no guess has been submitted
+  (disabled until a guess exists) and "Next Puzzle" after submission, per
+  the PRD Practice Screen spec.
+- Submitting disables further taps on the image, reveals the queen marker
+  and connecting line, and keeps the guess marker visible.
+- Advancing to the next puzzle resets guess/reveal state.
 
 ---
 
@@ -106,18 +74,18 @@ the PRD layout, since real scoring is not implemented until Phase 5.
 
 This goal is complete only when:
 
-- `Puzzle` type is defined and used consistently.
-- `src/data/queens.ts` exports 10 valid puzzles (3 easy / 4 medium / 3 hard)
-  referencing the existing images in `assets/images/`.
-- `randomisePuzzleOrder()` (or equivalent) is implemented as a pure,
-  reusable utility, separate from UI components.
-- The Home screen displays the correct puzzle count from the dataset.
-- The Practice screen loads and displays puzzles from the dataset in a
-  randomised sequence, with visible progress.
-- Completing a session navigates to the Results placeholder.
+- Tapping the puzzle image places a correctly-positioned blue guess marker,
+  accounting for image letterboxing/aspect ratio at different screen sizes.
+- The guess can be repositioned before submission but not after.
+- The primary button correctly switches between "Submit Guess" and
+  "Next Puzzle" per the PRD.
+- Submitting reveals the queen with a highlight animation and a connecting
+  line to the guess, and disables further interaction with the image.
+- Coordinate mapping and distance calculation live in `src/utils` as pure,
+  reusable, unit-testable functions — not inline in components.
 - The app builds successfully, TypeScript reports no errors, and the app
   still launches without runtime errors.
-- Existing Home screen and navigation functionality remain intact.
+- Existing puzzle engine, session sequencing, and navigation remain intact.
 
 ---
 

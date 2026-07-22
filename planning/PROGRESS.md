@@ -4,7 +4,7 @@
 
 - [x] Phase 1 — Project setup
 - [x] Phase 2 — Navigation
-- [ ] Phase 3 — Puzzle engine
+- [x] Phase 3 — Puzzle engine
 - [ ] Phase 4 — Image interaction
 - [ ] Phase 5 — Scoring
 - [ ] Phase 6 — Animations
@@ -49,3 +49,35 @@ gameplay implementation. That belongs to Phase 3 (Puzzle engine).
 Navigation (Phase 2) is marked complete because Expo Router, the root `Stack`
 layout, and the Home/Practice/Results placeholder routes were already required
 and delivered as part of Goal 1's task list.
+
+### Goal 2 — Puzzle Engine
+
+Implemented the puzzle data model, dataset, and sequencing engine.
+
+- Added the `Puzzle` type (`src/types/puzzle.ts`) matching the PRD's interface.
+- Added `src/data/queens.ts` with all 10 puzzles (3 easy / 4 medium / 3 hard),
+  each referencing its image via a static `require()` and carrying real
+  normalized queen coordinates (recorded from the procedural generator) and a
+  difficulty-scaled hit radius.
+- Added `randomisePuzzleOrder()` (`src/utils`, pure Fisher-Yates shuffle) and
+  `puzzleService` (`src/services`, `getPuzzles()` / `getPuzzleCount()`).
+- Added `usePuzzleSession()` (`src/hooks`) to load a shuffled session sequence
+  once and track progress through it.
+- Home screen now displays the real puzzle count instead of nothing.
+- Practice screen now loads the session, displays each puzzle's image with a
+  `PracticeHeader` (score placeholder + "Puzzle X of N"), and a "Next Puzzle"
+  action; completing the session navigates to Results.
+- Results screen gained working "Play Again" / "Return Home" navigation.
+
+**Bug found and fixed during verification:** `expo-image`'s `Image` is not a
+React Native core component, so NativeWind does not automatically support
+`className` on it. The image was rendering at zero size. Fixed by adding
+`src/components/PuzzleImage.tsx`, which registers `cssInterop(Image,
+{ className: 'style' })` and renders the **returned** wrapped component
+(`cssInterop` returns a new component rather than mutating the original —
+the first fix attempt missed this and still failed silently). Verified by
+launching in the iOS Simulator and visually confirming the puzzle image
+renders with the correct aspect ratio.
+
+Scoring, tap-to-guess interaction, and persistence remain out of scope
+(Phases 4/5/7) — the Practice screen's score is a static placeholder.

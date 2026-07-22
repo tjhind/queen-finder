@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BeeIllustration } from '@/src/components/BeeIllustration';
 import { PrimaryButton } from '@/src/components/PrimaryButton';
+import { getPuzzleCount } from '@/src/services/puzzleService';
 
 export function HomeScreen() {
   const router = useRouter();
+  const puzzleCount = getPuzzleCount();
 
   const handleStartPractice = () => {
     router.push('/practice');
@@ -28,6 +30,10 @@ export function HomeScreen() {
         <View className="mt-2xl">
           <PrimaryButton label="Start Practice" onPress={handleStartPractice} />
         </View>
+
+        <Text className="mt-md text-center text-sm text-text-secondary">
+          {puzzleCount} puzzles available
+        </Text>
       </View>
     </SafeAreaView>
   );

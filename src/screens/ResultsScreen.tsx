@@ -1,7 +1,20 @@
+import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PrimaryButton } from '@/src/components/PrimaryButton';
+
 export function ResultsScreen() {
+  const router = useRouter();
+
+  const handlePlayAgain = () => {
+    router.replace('/practice');
+  };
+
+  const handleReturnHome = () => {
+    router.replace('/');
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
       <View className="flex-1 items-center justify-center px-lg">
@@ -9,8 +22,13 @@ export function ResultsScreen() {
           Results
         </Text>
         <Text className="mt-sm text-center text-base text-text-secondary">
-          Your results will appear here.
+          Scoring is coming soon.
         </Text>
+
+        <View className="mt-2xl w-full items-center gap-md">
+          <PrimaryButton label="Play Again" onPress={handlePlayAgain} />
+          <PrimaryButton label="Return Home" onPress={handleReturnHome} />
+        </View>
       </View>
     </SafeAreaView>
   );
