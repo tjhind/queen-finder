@@ -11,7 +11,9 @@
 - [x] Phase 7 — Persistence
 - [x] Phase 8 — Polish
 - [x] Phase 9 — Testing
-- [ ] Phase 10 — Release preparation
+- [x] Phase 10 — Release preparation
+
+**All roadmap phases complete.**
 
 ## Completed Goals
 
@@ -272,3 +274,40 @@ Verified: `npm test` (30/30 passing), `tsc`, `expo-doctor` (20/20), and an
 `expo export --platform ios` to confirm the test files don't end up in the
 app bundle (nothing imports them from the entry point, so Metro naturally
 excludes them).
+
+### Goal 9 — Release Preparation
+
+Final release-readiness pass; last roadmap phase.
+
+- Set `ios.bundleIdentifier` and `android.package` to
+  `com.queenspottingtrainer.app` in `app.json` (previously unset).
+- Replaced the default Expo template icon/splash/favicon/Android adaptive
+  icon assets with a simple on-brand honeycomb mark (amber/gold, matching
+  `src/theme/colors.ts`), generated procedurally with ImageMagick like the
+  puzzle images. Android adaptive icon foreground sized within the ~66%
+  safe zone to avoid clipping under circular/squircle OS masks.
+- Added a root `README.md` (install/run/test instructions, project
+  structure, how to add a puzzle).
+- Reviewed the PRD's Acceptance Criteria explicitly:
+  - Game fully playable end-to-end (Home → Practice → guess → reveal →
+    score → next puzzle → Results → Play Again/Return Home) — confirmed
+    across Goals 1-7's verification, plus an unplanned full-pipeline
+    confirmation during Goal 7.
+  - Ten puzzles with valid metadata — enforced by a Goal 8 unit test.
+  - Images stored locally; app works fully offline — confirmed via
+    `grep` finding zero `fetch`/`XMLHttpRequest`/`axios` usage anywhere
+    in `app/` or `src/`.
+  - New puzzles addable without touching application logic — true by
+    construction (`src/data/queens.ts` + `assets/images/`).
+  - No stray `console.log`s anywhere in `app/`/`src/` (grepped, excluding
+    test files).
+- Final verification sweep: `tsc` clean, `npm test` (30/30), `expo-doctor`
+  (20/20), `expo export` for both iOS and Android, and a simulator smoke
+  test confirming the new app icon renders correctly and the Home screen
+  still loads without errors in the Metro log.
+
+**All 10 roadmap phases are now complete.** Per `planning/GOAL.md`'s
+Automation section, automation stops here rather than inventing further
+goals beyond the roadmap. The repository is in a clean, buildable,
+fully-tested state with 9 goals completed in this automation cycle (under
+the 15-goal cap).

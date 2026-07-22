@@ -1,86 +1,35 @@
 # Current Goal
 
-## Goal 9
-
-### Release Preparation
+## All Roadmap Phases Complete
 
 ---
 
-# Objective
+Every phase in `planning/ROADMAP.md` (Phase 1 through Phase 10) has been
+completed. See `planning/PROGRESS.md` for the full history of what was
+built in each goal, and `planning/CHANGELOG.md` for a per-goal summary of
+additions/changes/fixes.
 
-Final release-readiness pass. This is the last roadmap phase
-(`planning/ROADMAP.md` Phase 10). Verify the product actually satisfies
-`docs/PRD.md`'s Acceptance Criteria, tidy up release-facing configuration,
-and do a final full verification sweep.
-
-Do not add new gameplay features. This goal is verification and
-housekeeping only.
-
----
-
-# Tasks
-
-## App Configuration
-
-- Review `app.json` for release readiness: confirm `name`, `slug`,
-  `version`, and icon/splash asset paths are all sensible and non-placeholder.
-- Set `ios.bundleIdentifier` and `android.package` to sensible reverse-DNS
-  values (not currently set) — standard release-prep housekeeping, even
-  though this project isn't going through an actual store submission here.
-
-## Acceptance Criteria Review
-
-Walk through `docs/PRD.md`'s Acceptance Criteria section explicitly and
-confirm each item, fixing anything that doesn't hold:
-
-- The game is fully playable end-to-end (Home → Practice → guess → reveal
-  → score → next puzzle → Results → Play Again / Return Home).
-- All gameplay works correctly.
-- Ten puzzles are included with valid metadata.
-- Images are stored locally; everything works offline (no network calls
-  anywhere in the app).
-- New puzzles can be added by only touching `assets/images/` and
-  `src/data/queens.ts` — no UI/logic changes required.
-- The application is suitable for beta testing (no leftover debug code,
-  no stray `console.log`s, no crashes across the full flow).
-
-## Documentation
-
-Add a minimal `README.md` at the repo root covering: what the project is,
-how to install dependencies, how to run it (`npm start`), and how to run
-tests (`npm test`). Keep it short — this is a dev-facing quick start, not
-product documentation.
-
-## Final Verification Sweep
-
-- `npx tsc --noEmit`
-- `npm test`
-- `npx expo-doctor`
-- `npx expo export --platform ios` and `--platform android`
-- A final simulator smoke test of the full Home → Practice → Results loop.
+Per `planning/GOAL.md`'s Automation section, automation stops when every
+roadmap item is complete. There is no further roadmap-driven work to do
+here — this file intentionally does not define a new goal.
 
 ---
 
-# Success Criteria
+# If resuming work on this project
 
-This goal is complete only when:
+There is no unfinished roadmap phase to pick up. Sensible next steps, if
+the user wants to keep going, would be product decisions rather than
+roadmap items, for example:
 
-- Every item in the PRD's Acceptance Criteria section is verifiably true.
-- `app.json` has sensible, non-placeholder release configuration including
-  bundle identifiers.
-- A root `README.md` exists with basic setup/run/test instructions.
-- The full verification sweep (typecheck, tests, doctor, both platform
-  exports) passes cleanly.
-- The repository is left in a clean, buildable, working state.
+- Replacing the procedurally-generated placeholder puzzle images
+  (`assets/images/puzzle-*.png`) with production photography, per the
+  PRD's framing of them as MVP placeholders.
+- Deciding whether/how to support screen-reader users for the tap-to-guess
+  interaction (noted as a known limitation during Goal 7's polish pass —
+  a screen-reader "activate" on the puzzle image currently places a guess
+  at dead-center rather than a chosen position).
+- Any additional puzzle packs, difficulty tuning, or visual rebrand.
 
----
-
-# Completion
-
-When every success criterion has been satisfied, this is the final
-roadmap phase (`planning/ROADMAP.md` Phase 10 of 10). Per `planning/GOAL.md`'s
-Automation section, once every roadmap item is complete, automation should
-stop — do not invent further goals beyond the roadmap.
-
-The automation instructions inside GOAL.md should be followed for final
-progress/changelog updates and version control.
+Do not start any of the above without explicit direction from the user —
+rewrite this file with a new, concretely-scoped goal only once the user
+has indicated what they want next.

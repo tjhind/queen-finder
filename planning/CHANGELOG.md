@@ -156,3 +156,19 @@
 ### Fixed
 
 - N/A.
+
+## Goal 9 — Release Preparation
+
+### Added
+
+- Root `README.md` with setup/run/test instructions.
+- On-brand honeycomb app icon, splash icon, favicon, and Android adaptive
+  icon assets (replacing the default Expo template icon).
+
+### Changed
+
+- `app.json`: set `ios.bundleIdentifier` and `android.package`.
+
+### Fixed
+
+- N/A.
