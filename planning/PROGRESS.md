@@ -5,7 +5,7 @@
 - [x] Phase 1 — Project setup
 - [x] Phase 2 — Navigation
 - [x] Phase 3 — Puzzle engine
-- [ ] Phase 4 — Image interaction
+- [x] Phase 4 — Image interaction
 - [ ] Phase 5 — Scoring
 - [ ] Phase 6 — Animations
 - [ ] Phase 7 — Persistence
@@ -81,3 +81,36 @@ renders with the correct aspect ratio.
 
 Scoring, tap-to-guess interaction, and persistence remain out of scope
 (Phases 4/5/7) — the Practice screen's score is a static placeholder.
+
+### Goal 3 — Image Interaction
+
+Implemented tap-to-guess interaction with correct coordinate mapping.
+
+- Added `src/utils/imageBounds.ts` (`computeContainedImageBounds`,
+  `normaliseCoordinates`, `getPixelPosition`) — pure functions that correctly
+  account for `contentFit="contain"` letterboxing/aspect-ratio mismatches
+  between the rendered image and its container.
+- Added `src/utils/calculateDistance.ts` (normalized-space Euclidean
+  distance), ready for Phase 5 scoring.
+- Added `GuessMarker`, `QueenMarker` (pulsing halo reveal), and
+  `ConnectingLine` (rotated-`View` line, no SVG dependency) components.
+- Added `PuzzleStage` (`src/components`), which composes the tappable image,
+  markers, and connecting line, and owns layout/natural-image-size
+  measurement (`onLayout` + `expo-image`'s `onLoad`).
+- Practice screen now manages `guess`/`submitted` state per puzzle, switches
+  the primary button between "Submit Guess" (disabled until a guess exists)
+  and "Next Puzzle" per the PRD, disables further taps after submission, and
+  resets guess/reveal state when advancing.
+
+**Verification note:** tap interaction could not be exercised end-to-end via
+simulated touch in this environment (no `idb`/accessibility automation
+available to inject taps), so the coordinate-mapping and distance functions
+were additionally verified with a standalone Node script covering: matching
+aspect ratio (no letterboxing), a letterboxed case (including a tap inside
+the padding correctly returning `null`), pixel↔normalized round-tripping,
+and a real puzzle's queen coordinates round-tripping exactly. Combined with
+passing `tsc`, `expo-doctor` (20/20), successful iOS/Android exports, and a
+visual check of the initial Practice screen (image renders, "Submit Guess"
+correctly starts disabled), this gives reasonable confidence, but the actual
+tap → marker → reveal flow has not been physically exercised on a device or
+simulator. Worth a manual pass before this ships.

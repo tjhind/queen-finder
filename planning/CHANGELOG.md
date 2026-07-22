@@ -48,3 +48,23 @@
 - Puzzle images rendered at zero size because NativeWind's `className` isn't
   automatically supported on `expo-image`'s `Image`. Fixed via a `cssInterop`
   wrapper (`src/components/PuzzleImage.tsx`).
+
+## Goal 3 — Image Interaction
+
+### Added
+
+- `src/utils/imageBounds.ts` and `src/utils/calculateDistance.ts` — pure
+  coordinate-mapping and distance utilities accounting for image
+  letterboxing.
+- `GuessMarker`, `QueenMarker`, `ConnectingLine`, and `PuzzleStage`
+  components for tap-to-guess interaction and queen reveal.
+
+### Changed
+
+- Practice screen now supports placing/repositioning a guess, submitting it
+  to reveal the queen with a connecting line, and switches its primary
+  button between "Submit Guess" and "Next Puzzle".
+
+### Fixed
+
+- N/A.

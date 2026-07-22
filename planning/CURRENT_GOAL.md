@@ -1,72 +1,66 @@
 # Current Goal
 
-## Goal 3
+## Goal 4
 
-### Image Interaction
+### Scoring
 
 ---
 
 # Objective
 
-Implement tap-to-guess interaction on the puzzle image, with correct
-coordinate mapping and the guess/reveal visuals described in the PRD
-Gameplay section.
+Implement scoring per `docs/PRD.md`'s Scoring section: award points per
+puzzle based on guess accuracy, track session totals, and surface them on
+the Results screen.
 
-This goal is limited to image interaction. Do not implement:
+This goal is limited to in-session scoring. Do not implement:
 
-- Numeric scoring, accuracy, or points bands (Phase 5). It is fine to
-  determine hit/miss using the puzzle's `queen.radius` for visual purposes
-  (e.g. which marker style to show), but do not award or display points.
-- Best-score or statistics persistence (Phase 7).
+- Best-score or statistics persistence across app launches (Phase 7) — the
+  Results screen should show the current session's results only.
 
 ---
 
 # Tasks
 
-## Coordinate Mapping
+## Score Calculation
 
-Following `docs/ARCHITECTURE.md`'s "Image Interaction" section, add a pure,
-reusable utility (e.g. `src/utils/getRelativeCoordinates.ts`) that converts a
-tap position within the rendered image container into normalized (0–1)
-image coordinates. It must correctly account for:
+Add `src/utils/calculateScore.ts` — a pure function that maps a guess's
+distance from the queen (via the existing `calculateDistance()` utility) and
+the puzzle's `queen.radius` to a point value and a result label, per the PRD:
 
-- `contentFit="contain"` letterboxing (the rendered image may not fill the
-  full width/height of its container).
-- The puzzle image's natural aspect ratio vs. the container's aspect ratio.
-- Different screen sizes.
+- Perfect — 100
+- Excellent — 80
+- Good — 60
+- Close — 30
+- Miss — 0
 
-## Distance Utility
+Since `queen.radius` already varies by difficulty, band the thresholds as
+multiples of `radius` (e.g. within `radius` → Perfect, within `2 × radius` →
+Excellent, and so on) so scoring stays fair across easy/medium/hard puzzles.
+Choose specific thresholds sensibly; there is no single correct value here.
 
-Add `src/utils/calculateDistance.ts` — a pure function computing the
-normalized-space distance between a guess point and the queen's `{x, y}`,
-for comparison against `queen.radius`.
+## Practice Screen
 
-## Guess Marker
+- After submitting a guess, compute the score/result for that puzzle and:
+  - Display the result label (e.g. "Perfect!", "Miss") near the reveal,
+    per the PRD Gameplay section ("display result").
+  - Add the points to a running session score, shown live in
+    `PracticeHeader` (replacing the current static `0`).
+- Track, for the whole session: total score, number of puzzles answered
+  correctly (non-zero score), and puzzles attempted.
+- When the session completes, pass these session totals through to the
+  Results screen (e.g. via Expo Router navigation params) rather than
+  introducing global state/Context.
 
-Add a reusable `GuessMarker` component (`src/components`) rendering a blue
-marker at a given normalized position, with a subtle Reanimated fade/scale-in
-animation when placed.
+## Results Screen
 
-## Queen Reveal
+Update `src/screens/ResultsScreen.tsx` to display, per the PRD Results
+Screen spec:
 
-Add a `QueenMarker` component and a simple connecting-line element (a
-rotated `View`, no new SVG dependency required) that:
+- Final Score
+- Accuracy (correct answers ÷ total puzzles)
+- Correct Answers
 
-- Reveals the queen's true position with a subtle highlight animation.
-- Draws a subtle line connecting the guess marker to the queen marker.
-
-## Practice Screen Wiring
-
-Update `src/screens/PracticeScreen.tsx` so that:
-
-- Tapping the puzzle image places (or repositions) the blue guess marker.
-  Repositioning is only allowed before submission.
-- The primary button reads "Submit Guess" while no guess has been submitted
-  (disabled until a guess exists) and "Next Puzzle" after submission, per
-  the PRD Practice Screen spec.
-- Submitting disables further taps on the image, reveals the queen marker
-  and connecting line, and keeps the guess marker visible.
-- Advancing to the next puzzle resets guess/reveal state.
+Keep "Play Again" and "Return Home" working as they do today.
 
 ---
 
@@ -74,18 +68,16 @@ Update `src/screens/PracticeScreen.tsx` so that:
 
 This goal is complete only when:
 
-- Tapping the puzzle image places a correctly-positioned blue guess marker,
-  accounting for image letterboxing/aspect ratio at different screen sizes.
-- The guess can be repositioned before submission but not after.
-- The primary button correctly switches between "Submit Guess" and
-  "Next Puzzle" per the PRD.
-- Submitting reveals the queen with a highlight animation and a connecting
-  line to the guess, and disables further interaction with the image.
-- Coordinate mapping and distance calculation live in `src/utils` as pure,
-  reusable, unit-testable functions — not inline in components.
+- `calculateScore()` is a pure, reusable, unit-testable utility in
+  `src/utils`, not embedded in a component.
+- Submitting a guess shows the correct result label and awards the correct
+  points based on distance from the queen.
+- The live score shown during Practice updates correctly across puzzles.
+- The Results screen shows accurate Final Score, Accuracy, and Correct
+  Answers for the completed session.
 - The app builds successfully, TypeScript reports no errors, and the app
   still launches without runtime errors.
-- Existing puzzle engine, session sequencing, and navigation remain intact.
+- Existing puzzle engine, image interaction, and navigation remain intact.
 
 ---
 
