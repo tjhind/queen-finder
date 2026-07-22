@@ -6,7 +6,7 @@
 - [x] Phase 2 — Navigation
 - [x] Phase 3 — Puzzle engine
 - [x] Phase 4 — Image interaction
-- [ ] Phase 5 — Scoring
+- [x] Phase 5 — Scoring
 - [ ] Phase 6 — Animations
 - [ ] Phase 7 — Persistence
 - [ ] Phase 8 — Polish
@@ -114,3 +114,30 @@ visual check of the initial Practice screen (image renders, "Submit Guess"
 correctly starts disabled), this gives reasonable confidence, but the actual
 tap → marker → reveal flow has not been physically exercised on a device or
 simulator. Worth a manual pass before this ships.
+
+### Goal 4 — Scoring
+
+Implemented in-session scoring per the PRD's Scoring table.
+
+- Added `src/utils/calculateScore.ts` — maps guess distance and the
+  puzzle's `queen.radius` to a point value (100/80/60/30/0) and a result
+  label (Perfect/Excellent/Good/Close/Miss), banded as multiples of
+  `radius` so difficulty doesn't skew fairness.
+- Practice screen now computes the result on submit, shows the label (e.g.
+  "Perfect +100") next to the reveal, and accumulates a running session
+  score shown live in `PracticeHeader`.
+- Session totals (score, correct count, total puzzles) are passed to the
+  Results screen via Expo Router navigation params on `router.replace`
+  (no Context/global state introduced) when the session completes.
+- Results screen now shows real Final Score, Accuracy, and Correct Answers
+  (via a new small `ResultStat` row component) instead of a placeholder.
+
+Verified: `tsc`, `expo-doctor` (20/20), iOS/Android exports, a standalone
+`calculateScore` threshold sanity check, and — this time — an actual
+simulator launch with a live dev server: confirmed the Results screen
+correctly parses and renders params (`460`, `80%`, `8 / 10`) and the
+Practice screen renders with the live `Score: 0` header and a correctly
+disabled "Submit Guess" button pre-guess.
+
+Best-score/statistics persistence across launches remains out of scope
+(Phase 7) — results are session-only for now.

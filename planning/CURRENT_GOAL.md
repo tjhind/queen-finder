@@ -1,66 +1,56 @@
 # Current Goal
 
-## Goal 4
+## Goal 5
 
-### Scoring
+### Animations
 
 ---
 
 # Objective
 
-Implement scoring per `docs/PRD.md`'s Scoring section: award points per
-puzzle based on guess accuracy, track session totals, and surface them on
-the Results screen.
+Round out the animation set described in `docs/ARCHITECTURE.md`'s
+Animations section ("marker fade, marker scale, score animation, button
+press animation") and `docs/PRD.md`'s Gameplay section ("animate queen
+highlight"). Marker fade/scale (via `GuessMarker`/`QueenMarker`'s entering
+animations) and button press animation already exist from earlier goals.
+This goal focuses on the remaining gap — score animation — plus small,
+subtle polish around puzzle transitions and the result label.
 
-This goal is limited to in-session scoring. Do not implement:
-
-- Best-score or statistics persistence across app launches (Phase 7) — the
-  Results screen should show the current session's results only.
+This goal is animation polish only. Do not change scoring logic, puzzle
+data, navigation structure, or add new screens.
 
 ---
 
 # Tasks
 
-## Score Calculation
+## Score Animation
 
-Add `src/utils/calculateScore.ts` — a pure function that maps a guess's
-distance from the queen (via the existing `calculateDistance()` utility) and
-the puzzle's `queen.radius` to a point value and a result label, per the PRD:
+Add a reusable animated score display (e.g. `src/components/AnimatedScore.tsx`)
+that smoothly counts up/down when its numeric value changes, using
+Reanimated (a shared value driven by `withTiming`, reflected into text via
+`useAnimatedReaction` + `runOnJS`, or an equivalent Reanimated-native
+approach). Use it in `PracticeHeader` in place of the current plain `Text`
+score display. Keep the animation subtle and fast (a few hundred ms).
 
-- Perfect — 100
-- Excellent — 80
-- Good — 60
-- Close — 30
-- Miss — 0
+## Result Label Entrance
 
-Since `queen.radius` already varies by difficulty, band the thresholds as
-multiples of `radius` (e.g. within `radius` → Perfect, within `2 × radius` →
-Excellent, and so on) so scoring stays fair across easy/medium/hard puzzles.
-Choose specific thresholds sensibly; there is no single correct value here.
+Give the per-puzzle result label (e.g. "Perfect +100") a subtle entrance
+animation when it appears after submission, consistent in feel with the
+marker animations already in place.
 
-## Practice Screen
+## Puzzle Transition
 
-- After submitting a guess, compute the score/result for that puzzle and:
-  - Display the result label (e.g. "Perfect!", "Miss") near the reveal,
-    per the PRD Gameplay section ("display result").
-  - Add the points to a running session score, shown live in
-    `PracticeHeader` (replacing the current static `0`).
-- Track, for the whole session: total score, number of puzzles answered
-  correctly (non-zero score), and puzzles attempted.
-- When the session completes, pass these session totals through to the
-  Results screen (e.g. via Expo Router navigation params) rather than
-  introducing global state/Context.
+Add a subtle fade when the puzzle image changes between puzzles in
+`PuzzleStage`/`PracticeScreen`, so advancing doesn't feel like an abrupt cut.
+Keep it quick and unobtrusive — this is a polish detail, not a slideshow
+effect.
 
-## Results Screen
+## Performance Check
 
-Update `src/screens/ResultsScreen.tsx` to display, per the PRD Results
-Screen spec:
-
-- Final Score
-- Accuracy (correct answers ÷ total puzzles)
-- Correct Answers
-
-Keep "Play Again" and "Return Home" working as they do today.
+Per `docs/ARCHITECTURE.md`'s Performance section, confirm animations stay
+smooth: avoid layout thrashing, don't introduce unnecessary re-renders, and
+resolve any Reanimated warnings (e.g. entering/layout-animation conflicts)
+encountered along the way rather than leaving them as noise.
 
 ---
 
@@ -68,16 +58,17 @@ Keep "Play Again" and "Return Home" working as they do today.
 
 This goal is complete only when:
 
-- `calculateScore()` is a pure, reusable, unit-testable utility in
-  `src/utils`, not embedded in a component.
-- Submitting a guess shows the correct result label and awards the correct
-  points based on distance from the queen.
-- The live score shown during Practice updates correctly across puzzles.
-- The Results screen shows accurate Final Score, Accuracy, and Correct
-  Answers for the completed session.
+- The score displayed during Practice animates smoothly when it changes,
+  instead of jumping instantly.
+- The result label has a subtle, consistent entrance animation.
+- Advancing between puzzles has a subtle transition rather than an abrupt
+  swap.
+- No new Reanimated warnings are introduced, and any encountered during
+  this goal's work are resolved.
 - The app builds successfully, TypeScript reports no errors, and the app
   still launches without runtime errors.
-- Existing puzzle engine, image interaction, and navigation remain intact.
+- Existing scoring, image interaction, puzzle engine, and navigation
+  functionality remain intact.
 
 ---
 

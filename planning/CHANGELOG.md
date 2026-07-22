@@ -68,3 +68,22 @@
 ### Fixed
 
 - N/A.
+
+## Goal 4 — Scoring
+
+### Added
+
+- `src/utils/calculateScore.ts` — distance/radius-banded scoring per the
+  PRD's Perfect/Excellent/Good/Close/Miss table.
+- `ResultStat` component for the Results screen's stat rows.
+
+### Changed
+
+- Practice screen now shows a live running score and the per-puzzle result
+  label after submission, and passes session totals to Results via
+  navigation params.
+- Results screen now shows real Final Score, Accuracy, and Correct Answers.
+
+### Fixed
+
+- N/A.
